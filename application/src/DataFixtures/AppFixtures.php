@@ -9,6 +9,9 @@ use Faker\Factory;
 use DateTimeImmutable;
 use App\Entity\Actor;
 use App\Entity\Movie;
+use App\DataFixtures\images;
+
+include 'images.php';
 
 class AppFixtures extends Fixture
 {
@@ -19,7 +22,8 @@ private const ITEMS_PER_PAGE = 10;
 
 public function load(ObjectManager $manager)
 {
-$faker = Factory::create();
+
+$faker = Factory:: create('FR-fr');
 $faker->addProvider(new \Xylis\FakerCinema\Provider\Person($faker));
 
 // Create Actors
@@ -50,6 +54,10 @@ $movie->setDirector($faker->name);
 $movie->setRating($faker->randomFloat(1, 1, 10));
 $movie->setMedia('https://image.tmdb.org/t/p/original//aWeKITRFbbwY8txG5uCj4rMCfSP.jpg');
 $movie->setCreatedAt(new DateTimeImmutable());
+
+$imageUrls = \App\DataFixtures\images::getImages();
+$randomImageUrl = $faker->randomElement($imageUrls);
+$movie->setMedia($randomImageUrl);
 
 $actors = $manager->getRepository(Actor::class)->findAll();
 shuffle($actors);

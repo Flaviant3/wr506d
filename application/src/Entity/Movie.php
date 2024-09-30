@@ -155,16 +155,12 @@ class Movie
         return $this;
     }
 
-    public function getMedia(): ?string
-    {
+    public function getMedia() {
         return $this->media;
     }
 
-    public function setMedia(?string $media): static
-    {
+    public function setMedia($media) {
         $this->media = $media;
-
-        return $this;
     }
 
     /**
