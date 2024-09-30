@@ -11,48 +11,56 @@ use App\Entity\Movie;
 
 class AppFixtures extends Fixture
 {
+    private const TOTAL_ACTORS = 100; // Nombre total d'acteurs
+    private const TOTAL_MOVIES = 100; // Nombre total de films
+    private const ITEMS_PER_PAGE = 10; // Nombre d'éléments par page
+
     public function load(ObjectManager $manager)
     {
-
         $faker = \Faker\Factory::create();
         $faker->addProvider(new \Xylis\FakerCinema\Provider\Person($faker));
 
-        $actors = $faker->actors($gender = null, $count = 190, $duplicates = false);
-        $createdActors = [];
-        foreach ($actors as $item) {
-            $fullname = $item; //ex : Christian Bale
-            $fullnameExploded = explode(' ', $fullname);
-
-            $firstname = $fullnameExploded[0]; //ex : Christian
-            $lastname = $fullnameExploded[1]; //ex : Bale
-
+        // Créer des acteurs
+        for ($i = 0; $i < self::TOTAL_ACTORS; $i++) {
             $actor = new Actor();
-            $actor->setLastname($lastname);
-            $actor->setFirstname($firstname);
+            $actor->setLastname($faker->lastName);
+            $actor->setFirstname($faker->firstName);
             $actor->setDob($faker->dateTimeThisCentury());
+            $actor->setBio($faker->text(20));
+            $actor->setMovie($faker->text(20));
+            $actor->setName($faker->text(20));
+            $actor->setNationality($faker->country);
+            $actor->setMedia($faker->imageUrl());
+            $actor->setGender($faker->randomElement(['male', 'female']));
             $actor->setCreatedAt(new DateTimeImmutable());
-
-            $createdActors[] = $actor;
+            $actor->setUpdatedAt(new DateTimeImmutable());
 
             $manager->persist($actor);
         }
 
-        $faker->addProvider(new \Xylis\FakerCinema\Provider\Movie($faker));
-        $movies = $faker->movies(100);
-        foreach ($movies as $item) {
+        // Créer des films
+        for ($i = 0; $i < self::TOTAL_MOVIES; $i++) {
             $movie = new Movie();
-            $movie->setTitle($item);
+            $movie->setTitle($faker->sentence(3));
+            $movie->setDescription($faker->text(20));
+            $movie->setReleaseDate($faker->dateTimeBetween('-30 years', 'now'));
+            $movie->setDuration($faker->numberBetween(60, 180));
+            $movie->setEntries($faker->numberBetween(1000, 100000));
+            $movie->setDirector($faker->name);
+            $movie->setRating($faker->randomFloat(1, 1, 10));
+            $movie->setMedia($faker->imageUrl());
 
-            shuffle($createdActors);
-            $createdActorsSliced = array_slice($createdActors, 0, 4);
-            foreach ($createdActorsSliced as $actor) {
+            // Associer des acteurs au film
+            $actors = $manager->getRepository(Actor::class)->findAll();
+            shuffle($actors);
+            $selectedActors = array_slice($actors, 0, 4);
+            foreach ($selectedActors as $actor) {
                 $movie->addActor($actor);
             }
+
             $manager->persist($movie);
         }
 
-
         $manager->flush();
-        return true;
     }
 }
