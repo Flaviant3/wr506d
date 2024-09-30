@@ -19,12 +19,6 @@ class Actor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Movie = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $Name = null;
-
-    #[ORM\Column(length: 255)]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -82,30 +76,6 @@ class Actor
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getMovie(): ?string
-    {
-        return $this->Movie;
-    }
-
-    public function setMovie(string $Movie): static
-    {
-        $this->Movie = $Movie;
-
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->Name;
-    }
-
-    public function setName(string $Name): static
-    {
-        $this->Name = $Name;
-
-        return $this;
     }
 
     public function getLastname(): ?string

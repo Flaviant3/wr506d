@@ -8,28 +8,23 @@ use Faker;
 use DateTimeImmutable;
 use App\Entity\Actor;
 use App\Entity\Movie;
-
 class AppFixtures extends Fixture
 {
-    private const TOTAL_ACTORS = 100; // Nombre total d'acteurs
-    private const TOTAL_MOVIES = 100; // Nombre total de films
-    private const ITEMS_PER_PAGE = 10; // Nombre d'éléments par page
+    private const TOTAL_ACTORS = 100;
+    private const TOTAL_MOVIES = 100;
+    private const ITEMS_PER_PAGE = 10;
 
     public function load(ObjectManager $manager)
     {
         $faker = \Faker\Factory::create();
         $faker->addProvider(new \Xylis\FakerCinema\Provider\Person($faker));
 
-        // Créer des acteurs
         for ($i = 0; $i < self::TOTAL_ACTORS; $i++) {
             $actor = new Actor();
-            $actor->setLastname($faker->lastName);
-            $actor->setFirstname($faker->firstName);
+            $actor->setLastname($faker->actor());
             $actor->setDob($faker->dateTimeThisCentury());
-            $actor->setBio($faker->text(20));
-            $actor->setMovie($faker->text(20));
-            $actor->setName($faker->text(20));
-            $actor->setNationality($faker->country);
+            $actor->setBio($faker->text(100)); // Augmenter la longueur du texte pour plus de réalisme
+            $actor->setNationality($faker->country());
             $actor->setMedia($faker->imageUrl());
             $actor->setGender($faker->randomElement(['male', 'female']));
             $actor->setCreatedAt(new DateTimeImmutable());
@@ -38,19 +33,21 @@ class AppFixtures extends Fixture
             $manager->persist($actor);
         }
 
-        // Créer des films
+        $faker = \Faker\Factory::create();
+        $faker->addProvider(new \Xylis\FakerCinema\Provider\Movie($faker));
+
         for ($i = 0; $i < self::TOTAL_MOVIES; $i++) {
             $movie = new Movie();
-            $movie->setTitle($faker->sentence(3));
-            $movie->setDescription($faker->text(20));
+            $movie->setTitle($faker->movie);
+            $movie->setDescription($faker->overview);
             $movie->setReleaseDate($faker->dateTimeBetween('-30 years', 'now'));
             $movie->setDuration($faker->numberBetween(60, 180));
             $movie->setEntries($faker->numberBetween(1000, 100000));
             $movie->setDirector($faker->name);
             $movie->setRating($faker->randomFloat(1, 1, 10));
-            $movie->setMedia($faker->imageUrl());
+            $movie->setMedia('https://image.tmdb.org/t/p/original//aWeKITRFbbwY8txG5uCj4rMCfSP.jpg');
+            $movie->setCreatedAt(new DateTimeImmutable());
 
-            // Associer des acteurs au film
             $actors = $manager->getRepository(Actor::class)->findAll();
             shuffle($actors);
             $selectedActors = array_slice($actors, 0, 4);
