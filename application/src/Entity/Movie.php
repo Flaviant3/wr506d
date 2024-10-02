@@ -60,6 +60,15 @@ class Movie
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $studio = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $genre = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $saga = null;
+
     public function __construct()
     {
         $this->actors = new ArrayCollection();
@@ -231,6 +240,42 @@ class Movie
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getStudio(): ?string
+    {
+        return $this->studio;
+    }
+
+    public function setStudio(string $studio): static
+    {
+        $this->studio = $studio;
+
+        return $this;
+    }
+
+    public function getGenre(): ?string
+    {
+        return $this->genre;
+    }
+
+    public function setGenre(string $genre): static
+    {
+        $this->genre = $genre;
+
+        return $this;
+    }
+
+    public function getSaga(): ?string
+    {
+        return $this->saga;
+    }
+
+    public function setSaga(string $saga): static
+    {
+        $this->saga = $saga;
 
         return $this;
     }

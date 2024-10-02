@@ -38,6 +38,12 @@ $actor->setGender($faker->randomElement(['male', 'female']));
 $actor->setCreatedAt(new DateTimeImmutable());
 $actor->setUpdatedAt(new DateTimeImmutable());
 
+// Récupérer une image aléatoire pour l'acteur
+    $imageUrls = ActorImages::getImages();
+    $randomImageUrl = $faker->randomElement($imageUrls);
+    $actor->setMedia($randomImageUrl);
+
+$this->addReference("actor_$i", $actor);
 $manager->persist($actor);
 }
 
@@ -51,9 +57,14 @@ $movie->setReleaseDate($faker->dateTimeBetween('-30 years', 'now'));
 $movie->setDuration($faker->numberBetween(60, 180));
 $movie->setEntries($faker->numberBetween(1000, 100000));
 $movie->setDirector($faker->name);
+$movie->setGenre($faker->movieGenre());
+$movie->setSaga($faker->saga);
+$movie->setStudio($faker->company);
 $movie->setRating($faker->randomFloat(1, 1, 10));
 $movie->setMedia('https://image.tmdb.org/t/p/original//aWeKITRFbbwY8txG5uCj4rMCfSP.jpg');
 $movie->setCreatedAt(new DateTimeImmutable());
+$movie->addActor($this->getReference("actor_" . $faker->numberBetween(0, self::TOTAL_ACTORS - 1)));
+$movie->addActor($this->getReference("actor_" . $faker->numberBetween(0, self::TOTAL_ACTORS - 1)));
 
 $imageUrls = \App\DataFixtures\images::getImages();
 $randomImageUrl = $faker->randomElement($imageUrls);
