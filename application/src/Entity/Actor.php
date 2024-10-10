@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 #[ApiResource]
@@ -22,27 +23,48 @@ class Actor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?string $firstname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dob = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?int $awards = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Choice(['New York', 'Berlin', 'Tokyo', 'France', 'Italy', 'Spain', 'China', 'Russia', 'United Kingdom', 'United States', 'Canada', 'Mexico', 'Brazil', 'Argentina', 'Australia', 'New Zealand', 'South Africa', 'India', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Bhutan', 'Maldives', 'Afghanistan', 'Iran', 'Iraq', 'Syria', 'Turkey', 'Saudi Arabia', 'Yemen', 'Oman'])]
     private ?string $nationality = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $media = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotNull]
+    #[Assert\Type('string')]
     private ?string $gender = null;
 
     /**
@@ -51,7 +73,7 @@ class Actor
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $movies;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
