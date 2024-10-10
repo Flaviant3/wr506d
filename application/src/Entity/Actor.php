@@ -73,7 +73,7 @@ class Actor
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $movies;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
