@@ -8,7 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+<<<<<<< HEAD
+=======
 
+>>>>>>> 62361b30a8e3067bda58b9c9ec0c5d70d459e911
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource]

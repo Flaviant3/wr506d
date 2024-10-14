@@ -8,9 +8,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 #[ApiResource]
+<<<<<<< HEAD
+#[ApiFilter(SearchFilter::class, properties : ['id' => 'exact', 'lastname' => 'partial', 'dob'=> 'exact', 'awards' => 'exact', 'bio' => 'partial', 'nationality' => 'partial', 'gender' => 'exact', 'createdAt' => 'exact', 'movie.title' => 'partial'])]
+=======
+>>>>>>> 62361b30a8e3067bda58b9c9ec0c5d70d459e911
 class Actor
 {
     #[ORM\Id]
@@ -19,33 +27,48 @@ class Actor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Movie = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $Name = null;
-
-    #[ORM\Column(length: 255)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?string $firstname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dob = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?int $awards = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Choice(['New York', 'Berlin', 'Tokyo', 'France', 'Italy', 'Spain', 'China', 'Russia', 'United Kingdom', 'United States', 'Canada', 'Mexico', 'Brazil', 'Argentina', 'Australia', 'New Zealand', 'South Africa', 'India', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Bhutan', 'Maldives', 'Afghanistan', 'Iran', 'Iraq', 'Syria', 'Turkey', 'Saudi Arabia', 'Yemen', 'Oman'])]
     private ?string $nationality = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $media = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotNull]
+    #[Assert\Type('string')]
     private ?string $gender = null;
 
     /**
@@ -82,30 +105,6 @@ class Actor
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getMovie(): ?string
-    {
-        return $this->Movie;
-    }
-
-    public function setMovie(string $Movie): static
-    {
-        $this->Movie = $Movie;
-
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->Name;
-    }
-
-    public function setName(string $Name): static
-    {
-        $this->Name = $Name;
-
-        return $this;
     }
 
     public function getLastname(): ?string
