@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ActorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,7 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 #[ApiResource]
+<<<<<<< HEAD
 #[ApiFilter(SearchFilter::class, properties : ['id' => 'exact', 'lastname' => 'partial', 'dob'=> 'exact', 'awards' => 'exact', 'bio' => 'partial', 'nationality' => 'partial', 'gender' => 'exact', 'createdAt' => 'exact', 'movie.title' => 'partial'])]
+=======
+>>>>>>> 62361b30a8e3067bda58b9c9ec0c5d70d459e911
 class Actor
 {
     #[ORM\Id]
