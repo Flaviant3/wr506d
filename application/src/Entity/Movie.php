@@ -54,7 +54,7 @@ class Movie
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'categories')]
     private Collection $categories;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
