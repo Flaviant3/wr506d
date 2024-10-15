@@ -127,6 +127,7 @@ $actor->setLastname($faker->actor());
 $actor->setDob($faker->dateTimeThisCentury());
 $actor->setBio($faker->text(100));
 $actor->setNationality($faker->country());
+$actor->setAwards($faker->numberBetween(0, 10));
 $actor->setMedia('https://image.tmdb.org/t/p/original//aWeKITRFbbwY8txG5uCj4rMCfSP.jpg');
 $actor->setGender($faker->randomElement(['male', 'female']));
 $actor->setCreatedAt(new DateTimeImmutable());
