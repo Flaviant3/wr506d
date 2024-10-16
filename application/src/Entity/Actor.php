@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 #[ApiResource]
 
-#[ApiFilter(SearchFilter::class, properties : ['id' => 'exact', 'lastname' => 'partial', 'dob'=> 'exact', 'awards' => 'exact', 'bio' => 'partial', 'nationality' => 'partial', 'gender' => 'exact', 'createdAt' => 'exact', 'movie.title' => 'partial'])]
+#[ApiFilter(SearchFilter::class, properties : ['id' => 'exact', 'lastname' => 'partial', 'dob'=> 'exact', 'awards' => 'exact', 'bio' => 'partial', 'nationality' => 'partial', 'gender' => 'exact', 'createdAt' => 'exact', '' => 'partial'])]
 class Actor
 {
     #[ORM\Id]
@@ -91,6 +91,9 @@ class Actor
      */
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'movies')]
     private Collection $actor;
+
+    #[ORM\Column(length: 255)]
+    private ?string $movie = null;
 
     public function __construct()
     {
@@ -281,6 +284,18 @@ class Actor
     public function getActor(): Collection
     {
         return $this->actor;
+    }
+
+    public function getMovie(): ?string
+    {
+        return $this->movie;
+    }
+
+    public function setMovie(string $movie): static
+    {
+        $this->movie = $movie;
+
+        return $this;
     }
 }
 ?>
