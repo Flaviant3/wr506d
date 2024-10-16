@@ -91,6 +91,9 @@ class Actor
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'movies')]
     private Collection $actor;
 
+    #[ORM\Column(length: 255)]
+    private ?string $movie = null;
+
     public function __construct()
     {
         $this->movies = new ArrayCollection();
@@ -280,5 +283,17 @@ class Actor
     public function getActor(): Collection
     {
         return $this->actor;
+    }
+
+    public function getMovie(): ?string
+    {
+        return $this->movie;
+    }
+
+    public function setMovie(string $movie): static
+    {
+        $this->movie = $movie;
+
+        return $this;
     }
 }
