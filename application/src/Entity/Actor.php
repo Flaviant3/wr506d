@@ -95,6 +95,9 @@ class Actor
     #[ORM\Column(length: 255)]
     private ?string $movie = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
     public function __construct()
     {
         $this->movies = new ArrayCollection();
@@ -294,6 +297,18 @@ class Actor
     public function setMovie(string $movie): static
     {
         $this->movie = $movie;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
         return $this;
     }

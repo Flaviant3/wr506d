@@ -1,4 +1,12 @@
 security:
+    api:
+        pattern: ^/api
+        stateless: true
+        jwt: ~
+
+    encoders:
+        App\Entity\User:
+            algorithm: auto
     # Hashage des mots de passe
     password_hashers:
         App\Entity\User:
@@ -13,9 +21,13 @@ security:
                 property: email
 
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
 
         main:
             stateless: true # Indique que l'API ne maintient pas de session
@@ -29,6 +41,8 @@ security:
 
     # Contrôle d'accès
     access_control:
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
     # Ajoutez vos règles d'accès ici
     # - { path: ^/admin, roles: ROLE_ADMIN }
     # - { path: ^/profile, roles: ROLE_USER }
