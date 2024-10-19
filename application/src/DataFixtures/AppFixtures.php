@@ -37,6 +37,8 @@ $actor->setMedia('https://image.tmdb.org/t/p/original//aWeKITRFbbwY8txG5uCj4rMCf
 $actor->setGender($faker->randomElement(['male', 'female']));
 $actor->setCreatedAt(new DateTimeImmutable());
 $actor->setUpdatedAt(new DateTimeImmutable());
+$dob = $actor->getDob();
+$actor->setDeathDate($faker->optional(0.15)->dateTimeBetween($dob, 'now'));
 
 // Récupérer une image aléatoire pour l'acteur
     $imageUrls = ActorImages::getImages();
@@ -58,7 +60,6 @@ $movie->setDuration($faker->numberBetween(60, 180));
 $movie->setEntries($faker->numberBetween(1000, 100000));
 $movie->setDirector($faker->name);
 $movie->setGenre($faker->movieGenre());
-$movie->setSaga($faker->saga);
 $movie->setStudio($faker->company);
 $movie->setRating($faker->randomFloat(1, 1, 10));
 $movie->setMedia('https://image.tmdb.org/t/p/original//aWeKITRFbbwY8txG5uCj4rMCfSP.jpg');

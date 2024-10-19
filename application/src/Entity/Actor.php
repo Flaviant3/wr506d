@@ -2,20 +2,30 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use App\Repository\ActorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: ActorRepository::class)]
-#[ApiResource]
 
-#[ApiFilter(SearchFilter::class, properties : ['id' => 'exact', 'lastname' => 'partial', 'dob'=> 'exact', 'awards' => 'exact', 'bio' => 'partial', 'nationality' => 'partial', 'gender' => 'exact', 'createdAt' => 'exact', '' => 'partial'])]
+#[ORM\Entity(repositoryClass: ActorRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: ['id' => 'exact', 'firstname' => 'start', 'lastname' => 'start', 'nationality' => 'exact', 'gender' => 'start', 'bio' => 'partial', 'movies.title' => 'partial'])]
+#[ApiFilter(DateFilter::class, properties: ['dob'])]
+#[ApiFilter(RangeFilter::class, properties: ['awards'])]
+#[ApiFilter(ExistsFilter::class, properties: ['deathDate'])]
+#[ApiFilter(OrderFilter::class, properties: ['firstname', 'lastname'])]
+
 class Actor
 {
     #[ORM\Id]
@@ -23,86 +33,81 @@ class Actor
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 50,
         minMessage: 'Your username must be at least {{ limit }} characters long',
         maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
     )]
     private ?string $lastname = null;
 
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 50,
         minMessage: 'Your username must be at least {{ limit }} characters long',
         maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
     )]
     private ?string $firstname = null;
 
+
+
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dob = null;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\Length(
-        min: 2,
-        max: 50,
-        minMessage: 'Your username must be at least {{ limit }} characters long',
-        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    #[Assert\Range(
+        min: 0,
+        max: 10,
+        notInRangeMessage: 'You must be between {{ min }}cm and {{ max }}cm tall to enter',
     )]
     private ?int $awards = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 30,
+        max: 300,
+        minMessage: 'Your first name must be at least {{ limit }} characters long',
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+    )]
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(['New York', 'Berlin', 'Tokyo', 'France', 'Italy', 'Spain', 'China', 'Russia', 'United Kingdom', 'United States', 'Canada', 'Mexico', 'Brazil', 'Argentina', 'Australia', 'New Zealand', 'South Africa', 'India', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Bhutan', 'Maldives', 'Afghanistan', 'Iran', 'Iraq', 'Syria', 'Turkey', 'Saudi Arabia', 'Yemen', 'Oman'])]
+    #[Assert\Country]
     private ?string $nationality = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url]
+    #[Assert\NotBlank]
     private ?string $media = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotNull]
-    #[Assert\Type('string')]
+    #[Assert\Choice(['male', 'female'])]
+    #[Assert\NotBlank]
     private ?string $gender = null;
 
-    /**
-     * @var Collection<int, self>
-     */
-    #[ORM\ManyToMany(targetEntity: self::class)]
-    private Collection $movies;
-
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+
     /**
      * @var Collection<int, Movie>
      */
-    #[ORM\ManyToMany(targetEntity: Movie::class, mappedBy: 'actors')]
-    private Collection $actors;
+    #[ORM\ManyToMany(targetEntity: Movie::class, inversedBy: 'actors')]
+    private Collection $movies;
 
-    /**
-     * @var Collection<int, Category>
-     */
-    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'movies')]
-    private Collection $actor;
-
-    #[ORM\Column(length: 255)]
-    private ?string $movie = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $deathDate = null;
 
     public function __construct()
     {
         $this->movies = new ArrayCollection();
-        $this->actors = new ArrayCollection();
-        $this->actor = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -115,7 +120,7 @@ class Actor
         return $this->lastname;
     }
 
-    public function setLastname(string $lastname): static
+    public function setLastname(?string $lastname): static
     {
         $this->lastname = $lastname;
 
@@ -206,36 +211,13 @@ class Actor
         return $this;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
-    public function getMovies(): Collection
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
     {
-        return $this->movies;
+        $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function addMovie(self $movie): static
-    {
-        if (!$this->movies->contains($movie)) {
-            $this->movies->add($movie);
-        }
-
-        return $this;
-    }
-
-    public function removeMovie(self $movie): static
-    {
-        $this->movies->removeElement($movie);
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -257,60 +239,36 @@ class Actor
     /**
      * @return Collection<int, Movie>
      */
-    public function getActors(): Collection
+    public function getMovies(): Collection
     {
-        return $this->actors;
+        return $this->movies;
     }
 
-    public function addActor(Movie $actor): static
+    public function addMovie(Movie $movie): static
     {
-        if (!$this->actors->contains($actor)) {
-            $this->actors->add($actor);
-            $actor->addActor($this);
+        if (!$this->movies->contains($movie)) {
+            $this->movies->add($movie);
         }
 
         return $this;
     }
 
-    public function removeActor(Movie $actor): static
+    public function removeMovie(Movie $movie): static
     {
-        if ($this->actors->removeElement($actor)) {
-            $actor->removeActor($this);
-        }
+        $this->movies->removeElement($movie);
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Category>
-     */
-    public function getActor(): Collection
+    public function getDeathDate(): ?\DateTimeInterface
     {
-        return $this->actor;
+        return $this->deathDate;
     }
 
-    public function getMovie(): ?string
+    public function setDeathDate(?\DateTimeInterface $deathDate): static
     {
-        return $this->movie;
-    }
-
-    public function setMovie(string $movie): static
-    {
-        $this->movie = $movie;
-
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
+        $this->deathDate = $deathDate;
 
         return $this;
     }
 }
-?>

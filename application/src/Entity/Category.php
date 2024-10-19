@@ -2,15 +2,20 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: ['id' => 'exact', 'title' => 'partial', 'movies.title' => 'partial'])]
+
 class Category
 {
     #[ORM\Id]
@@ -19,19 +24,26 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    #[Assert\Length(
+        min: 3,
+        max: 150,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
 
-    /**
-     * @var Collection<int, Actor>
-     */
-    #[ORM\ManyToMany(targetEntity: Actor::class, inversedBy: 'actor')]
-    private Collection $movies;
+    private ?string $title = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    /**
+     * @var Collection<int, Movie>
+     */
+    #[ORM\ManyToMany(targetEntity: Movie::class, mappedBy: 'categories')]
+    private Collection $movies;
 
     public function __construct()
     {
@@ -55,33 +67,15 @@ class Category
         return $this;
     }
 
-    /**
-     * @return Collection<int, Actor>
-     */
-    public function getMovies(): Collection
-    {
-        return $this->movies;
-    }
-
-    public function addMovie(Actor $movie): static
-    {
-        if (!$this->movies->contains($movie)) {
-            $this->movies->add($movie);
-        }
-
-        return $this;
-    }
-
-    public function removeMovie(Actor $movie): static
-    {
-        $this->movies->removeElement($movie);
-
-        return $this;
-    }
-
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
@@ -91,14 +85,42 @@ class Category
         return $this;
     }
 
+
     public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Movie>
+     */
+    public function getMovies(): Collection
+    {
+        return $this->movies;
+    }
+
+    public function addMovie(Movie $movie): static
+    {
+        if (!$this->movies->contains($movie)) {
+            $this->movies->add($movie);
+            $movie->addCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMovie(Movie $movie): static
+    {
+        if ($this->movies->removeElement($movie)) {
+            $movie->removeCategory($this);
+        }
 
         return $this;
     }

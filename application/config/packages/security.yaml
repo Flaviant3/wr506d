@@ -34,3 +34,5 @@ security:
     - { path: ^/auth, roles: PUBLIC_ACCESS }
     - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/movies, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api/actors, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api/categories, roles: IS_AUTHENTICATED_FULLY }

@@ -2,15 +2,28 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+
+
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: ['id' => 'exact', 'title' => 'partial', 'director' => 'exact', 'description' => 'partial', 'categories.title' => 'partial', 'actors.firstname' => 'partial', 'actors.lastname' => 'partial'])]
+#[ApiFilter(DateFilter::class, properties: ['releaseDate'])]
+#[ApiFilter(RangeFilter::class, properties: ['duration','entries', 'rating'])]
+#[ApiFilter(OrderFilter::class, properties: ['duration', 'entries'])]
+
 class Movie
 {
     #[ORM\Id]
@@ -19,55 +32,79 @@ class Movie
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(
+        min: 3,
+        max: 250,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\Date]
     private ?\DateTimeInterface $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(
+        min: 50,
+        max: 200,
+        notInRangeMessage: 'You must be between {{ min }}min cm and {{ max }}min cm tall to enter',
+    )]
     private ?int $duration = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $entries = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Your username must be at least {{ limit }} characters long',
+        maxMessage: 'Your usernanme cannot be longer than {{ limit }} characters',
+    )]
+
     private ?string $director = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(
+        min: 0,
+        max: 10,
+        notInRangeMessage: 'You must be between {{ min }}cm and {{ max }}cm tall to enter',
+    )]
     private ?float $rating = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $media = null;
 
-    /**
-     * @var Collection<int, Actor>
-     */
-    #[ORM\ManyToMany(targetEntity: Actor::class, inversedBy: 'actors')]
-    private Collection $actors;
-
-    /**
-     * @var Collection<int, self>
-     */
-    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'categories')]
-    private Collection $categories;
-
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $studio = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $genre = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $saga = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $studio = null;
+    /**
+     * @var Collection<int, Actor>
+     */
+    #[ORM\ManyToMany(targetEntity: Actor::class, mappedBy: 'movies')]
+    private Collection $actors;
 
-    #[ORM\Column(length: 255)]
-    private ?string $genre = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $saga = null;
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]
+    private Collection $categories;
 
     public function __construct()
     {
@@ -164,58 +201,14 @@ class Movie
         return $this;
     }
 
-    public function getMedia() {
+    public function getMedia(): ?string
+    {
         return $this->media;
     }
 
-    public function setMedia($media) {
+    public function setMedia(?string $media): static
+    {
         $this->media = $media;
-    }
-
-    /**
-     * @return Collection<int, Actor>
-     */
-    public function getActors(): Collection
-    {
-        return $this->actors;
-    }
-
-    public function addActor(Actor $actor): static
-    {
-        if (!$this->actors->contains($actor)) {
-            $this->actors->add($actor);
-        }
-
-        return $this;
-    }
-
-    public function removeActor(Actor $actor): static
-    {
-        $this->actors->removeElement($actor);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getCategories(): Collection
-    {
-        return $this->categories;
-    }
-
-    public function addCategory(self $category): static
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-        }
-
-        return $this;
-    }
-
-    public function removeCategory(self $category): static
-    {
-        $this->categories->removeElement($category);
 
         return $this;
     }
@@ -223,6 +216,12 @@ class Movie
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
@@ -240,6 +239,57 @@ class Movie
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Actor>
+     */
+    public function getActors(): Collection
+    {
+        return $this->actors;
+    }
+
+    public function addActor(Actor $actor): static
+    {
+        if (!$this->actors->contains($actor)) {
+            $this->actors->add($actor);
+            $actor->addMovie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActor(Actor $actor): static
+    {
+        if ($this->actors->removeElement($actor)) {
+            $actor->removeMovie($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        $this->categories->removeElement($category);
 
         return $this;
     }
