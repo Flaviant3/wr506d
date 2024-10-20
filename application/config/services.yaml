@@ -6,9 +6,6 @@
 parameters:
 
 services:
-    App\Controller\GraphQL\MovieResolver:
-        tags: [ 'graphql.resolver' ]
-
     App\Controller\CreateMediaObjectAction:
         arguments:
             $validator: '@validator'
