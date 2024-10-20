@@ -1,0 +1,19 @@
+# api/config/graphql/schema.graphql
+
+type Movie {
+  id: ID!
+  title: String!
+  description: String
+  releaseDate: String
+}
+
+type Query {
+  movies: [Movie!]! # Récupérer tous les films
+  movie(id: ID!): Movie # Récupérer un film par ID
+}
+
+type Mutation {
+  createMovie(title: String!, description: String, releaseDate: String): Movie @hasRole(role: "ROLE_ADMIN")
+  updateMovie(id: ID!, title: String, description: String, releaseDate: String): Movie @hasRole(role: "ROLE_ADMIN")
+  deleteMovie(id: ID!): Boolean @hasRole(role: "ROLE_ADMIN")
+}

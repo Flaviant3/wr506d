@@ -36,3 +36,4 @@ security:
     - { path: ^/api/movies, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/actors, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/categories, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api/graphql, roles: IS_AUTHENTICATED_FULLY }
