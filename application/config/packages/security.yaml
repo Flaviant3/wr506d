@@ -32,7 +32,7 @@ security:
     - { path: ^/$, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
     - { path: ^/api/docs, roles: PUBLIC_ACCESS } # Allows accessing API documentations and Swagger UI docs
     - { path: ^/auth, roles: PUBLIC_ACCESS }
-    - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/movies, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/actors, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/categories, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api/register, roles: PUBLIC_ACCESS }

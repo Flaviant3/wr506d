@@ -7,3 +7,7 @@ controllers:
 auth:
     path: /auth
     methods: ['POST']
+
+register:
+    path: /register
+    methods: ['POST']
