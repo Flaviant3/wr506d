@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20241019125641 extends AbstractMigration
+final class Version20241022133244 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,12 +20,14 @@ final class Version20241019125641 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE movie CHANGE studio studio VARCHAR(255) DEFAULT NULL, CHANGE genre genre VARCHAR(255) DEFAULT NULL, CHANGE saga saga VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE user ADD username VARCHAR(255) NOT NULL');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649F85E0677 ON user (username)');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE movie CHANGE studio studio VARCHAR(255) NOT NULL, CHANGE genre genre VARCHAR(255) NOT NULL, CHANGE saga saga VARCHAR(255) NOT NULL');
+        $this->addSql('DROP INDEX UNIQ_8D93D649F85E0677 ON `user`');
+        $this->addSql('ALTER TABLE `user` DROP username');
     }
 }

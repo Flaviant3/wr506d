@@ -5,35 +5,37 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\UserType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
-
-     #[Route('/api/register', name: 'api_user_register', methods: ['POST'])]
-    public function apiRegister(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/api/register', name: 'api_user_register', methods: ['POST'])]
+    public function apiRegister(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+        $data = json_decode($request->getContent(), true);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Hash le mot de passe
-            $hashedPassword = password_hash($user->getPassword(), PASSWORD_BCRYPT);
-            $user->setPassword($hashedPassword);
+        // Remplacez setUsername par setName
+        $user->setEmail($data['email']);
+        $user->setName($data['name']); // Utilisez setName au lieu de setUsername
+        $user->setPassword($data['password']);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+        // Hachage du mot de passe
+        $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+        $user->setPassword($hashedPassword);
 
-            return $this->json(['message' => 'Utilisateur créé avec succès'], Response::HTTP_CREATED);
-        }
+        // Définir le rôle par défaut
+        $user->setRoles(['IS_AUTHENTICATED_FULLY']);
 
-        return $this->json(['message' => 'Erreur lors de la création de l\'utilisateur'], Response::HTTP_BAD_REQUEST);
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Utilisateur créé avec succès'], Response::HTTP_CREATED);
     }
 }
-?>
