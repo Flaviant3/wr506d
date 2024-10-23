@@ -37,6 +37,7 @@ class AppFixtures extends Fixture
             $actor->setGender($faker->randomElement(['male', 'female']));
             $actor->setCreatedAt(new DateTimeImmutable());
             $actor->setUpdatedAt(new DateTimeImmutable());
+            $actor->setAwards($faker->numberBetween(0, 10));
             $dob = $actor->getDob();
             $actor->setDeathDate($faker->optional(0.15)->dateTimeBetween($dob, 'now'));
 
