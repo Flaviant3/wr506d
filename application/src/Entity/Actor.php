@@ -59,9 +59,9 @@ class Actor
 
     #[ORM\Column(nullable: true)]
     #[Assert\Range(
+        notInRangeMessage: 'You must be between {{ min }}cm and {{ max }}cm tall to enter',
         min: 0,
         max: 10,
-        notInRangeMessage: 'You must be between {{ min }}cm and {{ max }}cm tall to enter',
     )]
     private ?int $awards = null;
 
@@ -75,9 +75,9 @@ class Actor
     )]
     private ?string $bio = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\Country]
-    private ?string $nationality = null;
+   #[ORM\Column(length: 255)]
+#[Assert\Choice(choices: ['France', 'Germany', 'Italy', 'Spain', 'United Kingdom'], message: 'Choose a valid country.')]
+private ?string $nationality = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Url]

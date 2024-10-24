@@ -21,7 +21,11 @@ class UserController extends AbstractController
         $user = new User();
         $data = json_decode($request->getContent(), true);
 
-        // Remplacez setUsername par setName
+        // Assurez-vous que les données sont présentes
+        if (!isset($data['email'], $data['name'], $data['password'])) {
+            return $this->json(['error' => 'Missing fields'], Response::HTTP_BAD_REQUEST);
+        }
+
         $user->setEmail($data['email']);
         $user->setName($data['name']); // Utilisez setName au lieu de setUsername
         $user->setPassword($data['password']);
@@ -36,6 +40,10 @@ class UserController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return $this->json(['message' => 'Utilisateur créé avec succès'], Response::HTTP_CREATED);
+        // Retournez le message et l'ID de l'utilisateur
+        return $this->json([
+            'message' => 'Utilisateur créé avec succès',
+            'id' => $user->getId(), // Ajoutez l'ID ici
+        ], Response::HTTP_CREATED);
     }
 }
